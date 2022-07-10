@@ -3,7 +3,8 @@ import geopandas
 import random
 from shapely.geometry import Point
 from matplotlib.widgets import Button
-
+import pycountry
+#got /worldflags from https://flagpedia.net
 
 class ClickCountry:
     def __init__(self):
@@ -19,12 +20,15 @@ class ClickCountry:
         self.choosecountry()
         self.win = False
 
+
     def choosecountry(self):
         i = random.randint(0, len(self.world))
         self.random_countryinfo = self.world.iloc[i]
         self.country_series = self.world.iloc[i:i+1]
         self.countryname = self.random_countryinfo["name"]
         self.randomcountrygeometry = self.random_countryinfo["geometry"]
+        self.iso_a3 = self.random_countryinfo["iso_a3"]
+        self.flag = pycountry.countries.get(alpha_3=self.iso_a3).flag
         self.updatemap()
 
     def showmap(self):
@@ -37,7 +41,7 @@ class ClickCountry:
 
     def updatemap(self):
         #num=f"Double Click on {self.countryname}"
-        self.fig.canvas.manager.set_window_title(f"Double Click on {self.countryname}")
+        self.fig.canvas.manager.set_window_title(f"Double Click on {self.countryname} {self.flag}")
         self.ax.set(aspect=1, title=f"Double Click On The Country\nCountry: {self.countryname}")
         plt.pause(0.1)
         # fig.tight_layout()
