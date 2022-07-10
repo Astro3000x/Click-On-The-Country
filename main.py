@@ -2,14 +2,22 @@ import matplotlib.pyplot as plt
 import geopandas
 import random
 from shapely.geometry import Point
+from matplotlib.widgets import Button
 
 
 class ClickCountry:
     def __init__(self):
         self.world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
         self.win = False
-        self.choosecountry()
         self.showmap()
+        self.choosecountry()
+
+
+    def newcountry(self, event):
+        self.button.label.set_text("Change Country")
+        self.country_series.plot(ax=self.ax)
+        self.choosecountry()
+        self.win = False
 
     def choosecountry(self):
         i = random.randint(0, len(self.world))
@@ -17,16 +25,21 @@ class ClickCountry:
         self.country_series = self.world.iloc[i:i+1]
         self.countryname = self.random_countryinfo["name"]
         self.randomcountrygeometry = self.random_countryinfo["geometry"]
+        self.updatemap()
 
     def showmap(self):
-        self.fig, self.ax = plt.subplots(num=f"Double Click on {self.countryname}")
+        self.fig, self.ax = plt.subplots()
         self.ax = self.world.plot(ax=self.ax, linewidth=1, edgecolor="black")
-        self.updatemap()
+        self.axbutton = self.fig.add_axes([0.75, 0.05, 0.20, 0.075])
+        self.button = Button(self.axbutton, 'Change Country')
+        self.button.on_clicked(self.newcountry)
         self.ax.figure.canvas.mpl_connect('button_press_event', self.onclick)
 
     def updatemap(self):
+        #num=f"Double Click on {self.countryname}"
+        self.fig.canvas.manager.set_window_title(f"Double Click on {self.countryname}")
         self.ax.set(aspect=1, title=f"Double Click On The Country\nCountry: {self.countryname}")
-
+        plt.pause(0.1)
         # fig.tight_layout()
         # self.random_countryinfo["name"].plot(ax=self.ax)
         # self.world[self.world.name == self.random_countryinfo["name"]].plot(ax=self.ax)
@@ -57,6 +70,7 @@ class ClickCountry:
             plt.pause(0.1)
 
             # plt.show(block=True)
+            self.button.label.set_text("Play Again")
             self.win = True
         elif self.win:
             pass
@@ -67,7 +81,6 @@ class ClickCountry:
 
 def main():
     game = ClickCountry()
-    game2 = ClickCountry()
     plt.ion()
     plt.show(block=True)
     pass
